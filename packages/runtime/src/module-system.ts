@@ -3,34 +3,10 @@ import { FarmRuntimePlugin, FarmRuntimePluginContainer } from './plugin';
 import {
   Resource,
   ResourceLoader,
+  __farm_global_this__,
   isBrowser,
   targetEnv
 } from './resource-loader';
-
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-ignore swc helpers does not have type definition
-import { _interop_require_default } from '@swc/helpers/_/_interop_require_default';
-// @ts-ignore swc helpers does not have type definition
-import { _interop_require_wildcard } from '@swc/helpers/_/_interop_require_wildcard';
-// @ts-ignore swc helpers does not have type definition
-import { _export_star } from '@swc/helpers/_/_export_star';
-
-const __global_this__ = globalThis || window;
-
-const INTERNAL_MODULE_MAP: Record<string, any> = {
-  '@swc/helpers/_/_interop_require_default': {
-    default: _interop_require_default,
-    _: _interop_require_default
-  },
-  '@swc/helpers/_/_interop_require_wildcard': {
-    default: _interop_require_wildcard,
-    _: _interop_require_wildcard
-  },
-  '@swc/helpers/_/_export_star': {
-    default: _export_star,
-    _: _export_star
-  }
-};
 
 declare const nodeRequire: (id: string) => any;
 
@@ -78,9 +54,14 @@ export class ModuleSystem {
   }
 
   require(moduleId: string, isCJS = false): any {
-    if (INTERNAL_MODULE_MAP[moduleId]) {
-      return INTERNAL_MODULE_MAP[moduleId];
-    }
+    const getExports = (isCJS: boolean, module: Module) => {
+      if (isCJS || module.exports.__esModule) {
+        return module.exports;
+      }
+
+      module.exports.default = module.exports;
+      return module.exports;
+    };
 
     // return the cached exports if cache exists
     // console.log(`[Farm] require module "${moduleId}" from cache`);
@@ -92,7 +73,7 @@ export class ModuleSystem {
 
       // console.log(`[Farm] shouldSkip: ${shouldSkip} ${moduleId}`);
       if (!shouldSkip) {
-        return this.cache[moduleId].exports;
+        return getExports(isCJS, this.cache[moduleId]);
       }
     }
 
@@ -107,6 +88,11 @@ export class ModuleSystem {
           return exports.default || exports;
         }
 
+        if (exports.__esModule) {
+          return exports;
+        }
+
+        exports.default = exports;
         return exports;
       }
       // try node require if target Env is node
@@ -140,19 +126,20 @@ export class ModuleSystem {
       this.require.bind(this),
       this.farmDynamicRequire.bind(this)
     );
+    
     // it's a async module, return the promise
     if (result && result instanceof Promise) {
       return result.then(() => {
         // call the module initialized hook
         this.pluginContainer.hookSerial('moduleInitialized', module);
         // return the exports of the module
-        return module.exports;
+        return getExports(isCJS, module);
       });
     } else {
       // call the module initialized hook
       this.pluginContainer.hookSerial('moduleInitialized', module);
       // return the exports of the module
-      return module.exports;
+      return getExports(isCJS, module);
     }
   }
 
@@ -246,9 +233,9 @@ export class ModuleSystem {
   getModuleUrl(moduleId: string): string {
     const publicPath = this.publicPaths[0] ?? '';
 
-    if (__global_this__.location) {
-      const url = `${__global_this__.location.protocol}//${
-        __global_this__.location.host
+    if (__farm_global_this__.location) {
+      const url = `${__farm_global_this__.location.protocol}//${
+        __farm_global_this__.location.host
       }${publicPath.endsWith('/') ? publicPath.slice(0, -1) : publicPath}/${
         this.modules[moduleId].__farm_resource_pot__
       }`;

@@ -15,20 +15,18 @@ use farmfe_core::{
   context::CompilationContext,
   enhanced_magic_string::types::SourceMapOptions,
   error::CompilationError,
-  module::{ModuleId, ModuleMetaData, ModuleType},
+  module::{ModuleId, ModuleType},
   parking_lot::Mutex,
   plugin::{
-    Plugin, PluginAnalyzeDepsHookParam, PluginAnalyzeDepsHookResultEntry,
-    PluginFinalizeResourcesHookParams, PluginGenerateResourcesHookResult, PluginHookContext,
-    PluginLoadHookParam, PluginLoadHookResult, PluginResolveHookParam, PluginResolveHookResult,
-    PluginTransformHookResult, ResolveKind,
+    Plugin, PluginFinalizeResourcesHookParams, PluginGenerateResourcesHookResult,
+    PluginHookContext, PluginLoadHookParam, PluginLoadHookResult, PluginResolveHookParam,
+    PluginResolveHookResult, PluginTransformHookResult,
   },
   resource::{
     resource_pot::{ResourcePot, ResourcePotMetaData, ResourcePotType},
     Resource, ResourceOrigin, ResourceType,
   },
   serde_json,
-  swc_ecma_ast::{ExportAll, ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem},
 };
 use farmfe_toolkit::{
   fs::read_file_utf8,
@@ -184,73 +182,6 @@ impl Plugin for FarmPluginRuntime {
     Ok(None)
   }
 
-  fn analyze_deps(
-    &self,
-    param: &mut PluginAnalyzeDepsHookParam,
-    _context: &Arc<CompilationContext>,
-  ) -> farmfe_core::error::Result<Option<()>> {
-    if !param.module.id.relative_path().ends_with(RUNTIME_SUFFIX) {
-      return Ok(None);
-    }
-
-    if let ModuleMetaData::Script(script) = &*param.module.meta {
-      let mut has_import_star = false;
-      let mut has_import_default = false;
-      let mut has_export_star = false;
-
-      // insert swc cjs module helper as soon as it has esm import
-      for stmt in &script.ast.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl { specifiers, .. })) = stmt {
-          has_import_star = has_export_star
-            || specifiers
-              .iter()
-              .any(|sp| matches!(sp, ImportSpecifier::Namespace(_)));
-          has_import_default = has_import_default
-            || specifiers
-              .iter()
-              .any(|specifier| matches!(specifier, ImportSpecifier::Default(_)));
-        } else if let ModuleItem::ModuleDecl(ModuleDecl::ExportAll(ExportAll { .. })) = stmt {
-          has_export_star = true;
-        }
-      }
-
-      let exists = |source: &str, param: &mut PluginAnalyzeDepsHookParam| {
-        param.deps.iter().any(|dep| dep.source == source)
-      };
-      let insert_import =
-        |source: &str, kind: ResolveKind, param: &mut PluginAnalyzeDepsHookParam| {
-          param.deps.push(PluginAnalyzeDepsHookResultEntry {
-            kind,
-            source: source.to_string(),
-          });
-        };
-
-      if has_import_star && !exists("@swc/helpers/_/_interop_require_wildcard", param) {
-        insert_import(
-          "@swc/helpers/_/_interop_require_wildcard",
-          ResolveKind::Import,
-          param,
-        );
-      }
-
-      if has_import_default && !exists("@swc/helpers/_/_interop_require_default", param) {
-        insert_import(
-          "@swc/helpers/_/_interop_require_default",
-          ResolveKind::Import,
-          param,
-        );
-      }
-
-      if has_export_star && !exists("@swc/helpers/_/_export_star", param) {
-        insert_import("@swc/helpers/_/_export_star", ResolveKind::Import, param);
-      }
-    } else {
-      return Ok(None);
-    }
-
-    Ok(Some(()))
-  }
-
   fn finalize_module(
     &self,
     param: &mut farmfe_core::plugin::PluginFinalizeModuleHookParam,
@@ -350,7 +281,7 @@ impl Plugin for FarmPluginRuntime {
           resource_pot_to_runtime_object(resource_pot, &module_graph, async_modules, context)?;
 
         bundle.prepend(
-          r#"(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})("#,
+          r#"(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{},_m:function(){}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})("#,
         );
 
         bundle.append(
@@ -430,7 +361,7 @@ impl Plugin for FarmPluginRuntime {
             .into_iter()
             .map(
               |(name, source)| if context.config.output.format == ModuleFormat::EsModule {
-                format!("{source:?}: {name} && {name}.default && !{name}.__esModule ? {{...{name},__esModule:true}} : {name}")
+                format!("{source:?}: {name} && {name}.default && !{name}.__esModule ? {{...{name},__esModule:true}} : {{...{name}}}")
               } else {
                 format!("{source:?}: {name}")
               }
@@ -454,7 +385,7 @@ impl Plugin for FarmPluginRuntime {
 
           let source_obj = format!("(globalThis||window||{{}})['{}']||{{}}", replace_source);
           external_objs.push(if context.config.output.format == ModuleFormat::EsModule {
-            format!("{source:?}: ({source_obj}).default && !({source_obj}).__esModule ? {{...({source_obj}),__esModule:true}} : ({source_obj})")
+            format!("{source:?}: ({source_obj}).default && !({source_obj}).__esModule ? {{...({source_obj}),__esModule:true}} : ({{...{source_obj}}})")
           } else {
             format!("{source:?}: {source_obj}")
           });

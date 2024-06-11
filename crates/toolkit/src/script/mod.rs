@@ -25,6 +25,7 @@ use crate::common::{create_swc_source_map, minify_comments, Source};
 
 pub use farmfe_toolkit_plugin_types::swc_ast::ParseScriptModuleResult;
 
+pub mod defined_idents_collector;
 pub mod swc_try_with;
 
 /// parse the content of a module to [SwcModule] ast.

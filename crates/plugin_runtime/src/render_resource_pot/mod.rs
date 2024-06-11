@@ -28,6 +28,7 @@ use self::render_module::{render_module, RenderModuleResult};
 mod render_module;
 mod source_replacer;
 mod transform_async_module;
+mod transform_module_decls;
 
 /// Merge all modules' ast in a [ResourcePot] to Farm's runtime [ObjectLit]. The [ObjectLit] looks like:
 /// ```js
