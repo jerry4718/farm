@@ -1,5 +1,5 @@
-//__farm_runtime.06a03283.mjs:
- (globalThis || window || global)['__farm_default_namespace__'] = {__FARM_TARGET_ENV__: 'browser'};(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{},_m:function(){}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})({"d2214aaa":function  (module, exports, farmRequire, farmDynamicRequire) {
+//__farm_runtime.8290960b.mjs:
+ (globalThis || window || global)['__farm_default_namespace__'] = {__FARM_TARGET_ENV__: 'browser'};(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{},_m:function(){},o:function(a,b,c){a[b]=c()}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})({"d2214aaa":function  (module, exports, farmRequire, farmDynamicRequire) {
     console.log("runtime/index.js")(globalThis || window || global)["__farm_default_namespace__"].__farm_module_system__.setPlugins([]);
 }
 ,},"d2214aaa");
@@ -11,13 +11,15 @@
         _f_utils.debug("debounce");
         return fn;
     }
-    exports.default = debounce;
+    module.o(exports, "default", function() {
+        return debounce;
+    });
     module._m(exports);
 }
 ,});
 
 //index.js:
- import "./__farm_runtime.06a03283.mjs";import "./index_2faa.js";import "./index_64d2.js";(globalThis || window || global)['__farm_default_namespace__'].__farm_module_system__.setExternalModules({"module": ((globalThis||window||{})['module']||{}).default && !((globalThis||window||{})['module']||{}).__esModule ? {...((globalThis||window||{})['module']||{}),__esModule:true} : ({...(globalThis||window||{})['module']||{}})});(function(_){for(var r in _){_[r].__farm_resource_pot__='index_dcdc.js';(globalThis || window || global)['__farm_default_namespace__'].__farm_module_system__.register(r,_[r])}})({"b5d64806":function  (module, exports, farmRequire, farmDynamicRequire) {
+ import "./__farm_runtime.8290960b.mjs";import "./index_2faa.js";import "./index_64d2.js";(globalThis || window || global)['__farm_default_namespace__'].__farm_module_system__.setExternalModules({"module": ((globalThis||window||{})['module']||{}).default && !((globalThis||window||{})['module']||{}).__esModule ? {...((globalThis||window||{})['module']||{}),__esModule:true} : ({...(globalThis||window||{})['module']||{}})});(function(_){for(var r in _){_[r].__farm_resource_pot__='index_dcdc.js';(globalThis || window || global)['__farm_default_namespace__'].__farm_module_system__.register(r,_[r])}})({"b5d64806":function  (module, exports, farmRequire, farmDynamicRequire) {
     var _f_module = farmRequire("module");
     var _f_merge = farmRequire("726cd210");
     function defineConfig(config) {
@@ -44,7 +46,9 @@
     function debug(msg) {
         console.log(msg);
     }
-    exports.debug = debug;
+    module.o(exports, "debug", function() {
+        return debug;
+    });
     module._m(exports);
 }
 ,});
@@ -56,7 +60,9 @@
         _f_utils.debug("merge");
         return a + b;
     }
-    exports.default = merge;
+    module.o(exports, "default", function() {
+        return merge;
+    });
     module._m(exports);
 }
 ,});

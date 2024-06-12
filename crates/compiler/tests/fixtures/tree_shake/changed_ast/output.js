@@ -1,5 +1,5 @@
 //index.js:
- (globalThis || window || global)['__farm_default_namespace__'] = {__FARM_TARGET_ENV__: 'browser'};(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{},_m:function(){}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})({"../../_internal/runtime/index.js.farm-runtime":function  (module, exports, farmRequire, farmDynamicRequire) {
+ (globalThis || window || global)['__farm_default_namespace__'] = {__FARM_TARGET_ENV__: 'browser'};(function(r,e){var t={};function n(r){return Promise.resolve(o(r))}function o(e){if(t[e])return t[e].exports;var i={id:e,exports:{},_m:function(){},o:function(a,b,c){a[b]=c()}};t[e]=i;r[e](i,i.exports,o,n);return i.exports}o(e)})({"../../_internal/runtime/index.js.farm-runtime":function  (module, exports, farmRequire, farmDynamicRequire) {
     console.log("runtime/index.js")(globalThis || window || global)["__farm_default_namespace__"].__farm_module_system__.setPlugins([]);
 }
 ,},"../../_internal/runtime/index.js.farm-runtime");(function(_){for(var r in _){_[r].__farm_resource_pot__='index_4924.js';(globalThis || window || global)['__farm_default_namespace__'].__farm_module_system__.register(r,_[r])}})({"comp.tsx":function  (module, exports, farmRequire, farmDynamicRequire) {
@@ -40,7 +40,9 @@
             __self: this
         }));
     }
-    exports.Description = Description;
+    module.o(exports, "Description", function() {
+        return Description;
+    });
     _c1 = Description;
     var _c, _c1;
     $RefreshReg$(_c, "LazyComp");
@@ -52,7 +54,9 @@
     const Suspense = function() {
         console.log("Suspense");
     };
-    exports.Suspense = Suspense;
+    module.o(exports, "Suspense", function() {
+        return Suspense;
+    });
     exports.default = {
         createElement (comp, ...args) {
             console.log(comp(), args);
