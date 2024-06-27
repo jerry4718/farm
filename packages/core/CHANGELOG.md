@@ -1,5 +1,12 @@
 # @farmfe/core
 
+## 1.2.4
+
+### Patch Changes
+
+- 8e3f1934: Enable parser.decorators by default when script.decorators is enabled
+- 8e3f1934: Make options in `ScriptParseConfig` optional
+
 ## 1.2.3
 
 ### Patch Changes
